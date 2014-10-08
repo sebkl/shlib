@@ -1,13 +1,13 @@
 #!/bin/sh
 export DATE="date +%Y%m%d"
 export TIME="date +%Y%m%d-%H%M%S"
+[ -z "${LOCKFILE}" ] && LOCKFILE="${HOME}/.lock_file"
 
-if [ -z "${LOCKFILE}" ]; then
-	LOCKFILE="${HOME}/.lock_file"
-fi
-
+####
+## echo to stderr
+##
 echoe () {
-	echo `$TIME`  $1 1>&2
+	echo `$TIME`  $@ 1>&2
 }
 
 lowercase () {
@@ -17,7 +17,6 @@ lowercase () {
 uppercase () {
         echoe $1 | tr [:lower:] [:upper:]
 }
-
 
 ####
 ## Loads all files in the given directory as environment parameters.
@@ -33,7 +32,9 @@ load_config () {
                 done
         fi
 }
-
+####
+## Asserts whether the given user is active. If not errorcode is returned.
+##
 assert_user () {
         if [ `whoami` == "$1" ]; then
 		return 0
@@ -43,6 +44,10 @@ assert_user () {
         fi
 }
 
+####
+## Try to lock using the optionally given file.
+## If lock exists this call blocks max 360 seconds and returns with error.
+##
 lock () {
 	if [[ $1 ]]; then
 		LF=$1
@@ -76,7 +81,9 @@ lock () {
         echoe "Locked $LF..."
 	return 0
 }
-
+####
+## unlock using the optionally given lock file
+##
 unlock () {
 	if [[ $1 ]]; then
 		LF=$1
@@ -90,8 +97,4 @@ unlock () {
         fi
 }
 
-if [ -d $1 ]; then
-	load_config $1
-fi
-
-
+[ -d $1 ] && load_config $1
