@@ -11,11 +11,11 @@ echoe () {
 }
 
 lowercase () {
-        echoe $1 | tr [:upper:] [:lower:]
+        echo $1 | tr [:upper:] [:lower:]
 }
 
 uppercase () {
-        echoe $1 | tr [:lower:] [:upper:]
+        echo $1 | tr [:lower:] [:upper:]
 }
 
 ####
@@ -26,12 +26,13 @@ load_config () {
         if [[ "$CONFDIR" ]] && [ -d "$CONFDIR" ]; then
 		echoe "Loading config from $CONFDIR"
                 for c in `ls -1tr $CONFDIR`; do
-                        MYCMD=`cat ${CONFDIR}/${c} | sed /^[\s*]\#/d |xargs`
+                        MYCMD=`cat ${CONFDIR}/${c} | sed s/\#.*$// |xargs`
                         echoe "SETCONF: ${c}=${MYCMD}"
                         export ${c}="${MYCMD}"
                 done
         fi
 }
+
 ####
 ## Asserts whether the given user is active. If not errorcode is returned.
 ##
@@ -81,6 +82,7 @@ lock () {
         echoe "Locked $LF..."
 	return 0
 }
+
 ####
 ## unlock using the optionally given lock file
 ##
